@@ -35,9 +35,12 @@ npm install
 ## Step-3: Start the development server:
 
 ```bash
+node server.js
+```
+## Step-4: Start the app:
+```bash
 npm run dev
 ```
-
 
 
 ### WebSocket Implementation
