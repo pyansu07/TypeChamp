@@ -67,6 +67,18 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("chat_message", (message) => {
+    const player = players[socket.id];
+    if (player && player.opponent) {
+      const chatData = {
+        sender: player.name,
+        message: message
+      };
+      io.to(socket.id).emit("chat_message", chatData);
+      io.to(player.opponent).emit("chat_message", chatData);
+    }
+  });
+
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`);
     if (players[socket.id]) {
