@@ -1,4 +1,3 @@
-
 # TypeChamp
 
 TypeChamp is a real-time multiplayer typing game developed using React, JavaScript, WebSockets, and CSS. It offers an engaging and interactive experience by allowing players to compete in typing challenges in real time.
@@ -9,9 +8,9 @@ TypeChamp is a real-time multiplayer typing game developed using React, JavaScri
 
 ## Features
 
-- Real-time Multiplayer: Play against other users in real-time typing competitions.
-- WebSocket Communication: Utilizes Socket.IO for seamless real-time communication between players.
-- Chat feature to communicate with matched users
+- `Real-time Multiplayer`: Play against other users in real-time typing competitions.
+- `WebSocket` Communication: Utilizes `Socket.IO` for seamless real-time communication between players.
+- `Chat` feature to communicate with matched users
 
 
 ## Technologies Used
@@ -36,7 +35,7 @@ npm install
 ## Step-3: Start the development server:
 
 ```bash
-npm start
+npm run dev
 ```
 
 
