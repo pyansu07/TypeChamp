@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import './app.css';
 import io from 'socket.io-client';
 
-
 const sentences = [
     "The quick brown fox jumps over the lazy dog.",
     "Coding is fun and challenging at the same time.",
@@ -16,11 +15,12 @@ const sentences = [
     "Learning new technologies opens up endless possibilities.",
 ];
 
-const TypingGame = ({ score, setScore, isGameOver, setIsGameOver, socket }) => {
+const TypingGame = ({ score, setScore, isGameOver, setIsGameOver, socket, chatMessages, sendChatMessage }) => {
     const [sentence, setSentence] = useState('');
     const [input, setInput] = useState('');
     const [time, setTime] = useState(15);
     const [isGameStarted, setIsGameStarted] = useState(false);
+    const [chatInput, setChatInput] = useState('');
 
     useEffect(() => {
         setIsGameStarted(true);
@@ -55,43 +55,71 @@ const TypingGame = ({ score, setScore, isGameOver, setIsGameOver, socket }) => {
     const handleChange = (e) => {
         if (!isGameOver && isGameStarted) {
             setInput(e.target.value);
-            if (e.target.value.trim() === sentence) { 
+            if (e.target.value.trim() === sentence) {
                 setScore((prevScore) => prevScore + 1);
                 setInput('');
                 generateRandomSentence();
-                socket.emit("score_update", score + 1); 
+                socket.emit("score_update", score + 1);
             }
+        }
+    };
+
+    const handleChatSubmit = (e) => {
+        e.preventDefault();
+        if (chatInput.trim() !== '') {
+            socket.emit('chat_message', chatInput);
+            setChatInput('');
         }
     };
 
     return (
         <div className="container">
-            <h1 className="title">Sentence Typing Game</h1>
-            {isGameStarted && (
-                <>
-                    <div className="timer">Time Left: {time}</div>
-                    <p>Your Score: {score}</p>
-                    <div className="sentence">{sentence}</div>
-                    {!isGameOver && (
-                        <div className="input-container">
-                            <input
-                                type="text"
-                                value={input}
-                                onChange={handleChange}
-                                className="input-field"
-                                placeholder="Type here..."
-                                autoFocus
-                            />
+            <div className="game-container">
+                <h1 className="title">Sentence Typing Game</h1>
+                {isGameStarted && (
+                    <>
+                        <div className="timer">Time Left: {time}</div>
+                        <p>Your Score: {score}</p>
+                        <div className="sentence">{sentence}</div>
+                        {!isGameOver && (
+                            <div className="input-container">
+                                <input
+                                    type="text"
+                                    value={input}
+                                    onChange={handleChange}
+                                    className="input-field"
+                                    placeholder="Type here..."
+                                    autoFocus
+                                />
+                            </div>
+                        )}
+                        {isGameOver && (
+                            <div className="game-over">
+                                <p>Game Over!</p>
+                                <p>Your Score: {score}</p>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
+            <div className="chat-container">
+                <div className="chat-messages">
+                    {chatMessages.map((msg, index) => (
+                        <div key={index} className="chat-message">
+                            <strong>{msg.sender}:</strong> {msg.message}
                         </div>
-                    )}
-                </>
-            )}
-            {isGameOver && (
-                <div className="game-over">
-                    <p>Game Over!</p>
-                    <p>Your Score: {score}</p>
+                    ))}
                 </div>
-            )}
+                <form onSubmit={handleChatSubmit}>
+                    <input
+                        type="text"
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        placeholder="Type a message..."
+                    />
+                    <button type="submit">Send</button>
+                </form>
+            </div>
         </div>
     );
 };

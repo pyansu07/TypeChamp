@@ -14,6 +14,7 @@ const App = () => {
     const [isGameOver, setIsGameOver] = useState(false);
     const [finishedArrayState, setFinishedArrayState] = useState([]);
     const [winnerName, setWinnerName] = useState("");
+    const [chatMessages, setChatMessages] = useState([]);
 
 
     socket?.on("connect", function () {
@@ -59,6 +60,10 @@ const App = () => {
       socket.on("announce_winner", (winner) => {
         setWinnerName(winner);
       });
+
+      socket.on("chat_message", (chatData) => {
+        setChatMessages(prevMessages => [...prevMessages, chatData]);
+      });
     }
   }, [socket]);
     // useEffect(() => {
@@ -95,6 +100,16 @@ const App = () => {
        // socket.emit("announce_winner");
       }
     }, [isGameOver, socket]);
+
+    useEffect(() => {
+      console.log('Chat messages:', chatMessages);
+    }, [chatMessages]);
+  const sendChatMessage = (message) => {
+    if (socket && message.trim() !== '') {
+      socket.emit('chat_message', message);
+    }
+  };
+
 
     const takePlayerName = async () => {
         const result = await Swal.fire({
@@ -144,13 +159,50 @@ const App = () => {
 
 
     if (!playOnline) {
-        return (
-            <div className="main-div">
-                <button onClick={playOnlineClick} className="playOnline">
-                    Play Online
-                </button>
+      return (
+        <div className="main-div">
+        <div className="container2">
+          <div className="inner-container2">
+            <div className="left-panel2">
+              <div className="content2">
+                <h1 className="title2">TypeChamp</h1>
+                <p className="subtitle2">
+                  Play anonymously and safely with people for free
+                </p>
+              </div>
+              <button className="buttons2"onClick={playOnlineClick}>
+                    Login Anonymously
+                  </button>
+              {/* {isLoading ? (
+                <div className="loading-message">Processing Login</div>
+              ) : (
+                <div className="buttons">
+
+                </div>
+              )} */}
             </div>
-        );
+            <div className="right-panel2">
+              <img
+                src="https://whisper.favour.dev/landing%20page%20image.jpg"
+                alt="Landing Page"
+                className="image"
+              />
+            </div>
+          </div>
+        </div>
+        </div>
+      )
+      
+      
+      
+      
+      // return (
+        //     <div className="main-div">
+        //         <button onClick={playOnlineClick} className="playOnline">
+        //             Play Online
+        //         </button>
+        //     </div>
+        // );
     }
 
       if (playOnline && !opponentName) {
@@ -164,7 +216,8 @@ const App = () => {
     return (
         <>
             <div className="move-detection">
-                <div className='left'>{playerName}</div>
+
+                <div className='left'>You : {playerName}</div>
                 <div className='right'>  {opponentName}</div>
                         {/* <div
           className={`left ${
@@ -188,6 +241,8 @@ const App = () => {
                     isGameOver={isGameOver}
                     setIsGameOver={setIsGameOver}
                     socket={socket} 
+                    chatMessages={chatMessages}
+                    sendChatMessage={sendChatMessage}
                 />                {isGameOver && winnerName && (
                     <div className="winner-announcement">
                         <h2>Winner: {winnerName}</h2>
