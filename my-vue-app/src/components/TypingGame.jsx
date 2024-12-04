@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
+<<<<<<< HEAD
 import './TypingGame.css';
+=======
+import './app.css';
+import io from 'socket.io-client';
+>>>>>>> 9d46fa049dbbe3fbb0ef59f3260f15133da6d0e7
 
 const sentences = [
     "The quick brown fox jumps over the lazy dog.",
@@ -8,6 +13,7 @@ const sentences = [
     "Keep coding and learning new things.",
 ];
 
+<<<<<<< HEAD
 const TypingGame = ({ score, setScore, socket }) => {
     const [currentSentence, setCurrentSentence] = useState('');
     const [userInput, setUserInput] = useState('');
@@ -16,6 +22,14 @@ const TypingGame = ({ score, setScore, socket }) => {
     const [accuracy, setAccuracy] = useState(100);
     const [wordsPerMinute, setWordsPerMinute] = useState(0);
     const [startTime, setStartTime] = useState(null);
+=======
+const TypingGame = ({ score, setScore, isGameOver, setIsGameOver, socket, chatMessages, sendChatMessage }) => {
+    const [sentence, setSentence] = useState('');
+    const [input, setInput] = useState('');
+    const [time, setTime] = useState(15);
+    const [isGameStarted, setIsGameStarted] = useState(false);
+    const [chatInput, setChatInput] = useState('');
+>>>>>>> 9d46fa049dbbe3fbb0ef59f3260f15133da6d0e7
 
     useEffect(() => {
         setCurrentSentence(sentences[Math.floor(Math.random() * sentences.length)]);
@@ -26,8 +40,36 @@ const TypingGame = ({ score, setScore, socket }) => {
             const timer = setTimeout(() => setTime(time - 1), 1000);
             return () => clearTimeout(timer);
         } else if (time === 0 && isGameStarted) {
+<<<<<<< HEAD
             if (socket) {
                 socket.emit("game_over", wordsPerMinute); // Send WPM as score
+=======
+            setIsGameOver(true);
+        }
+    }, [time, isGameOver, isGameStarted]);
+
+    const startGame = () => {
+        generateRandomSentence();
+        setTime(15);
+        setScore(0);
+        setInput('');
+        setIsGameOver(false);
+    };
+
+    const generateRandomSentence = () => {
+        const randomIndex = Math.floor(Math.random() * sentences.length);
+        setSentence(sentences[randomIndex]);
+    };
+
+    const handleChange = (e) => {
+        if (!isGameOver && isGameStarted) {
+            setInput(e.target.value);
+            if (e.target.value.trim() === sentence) {
+                setScore((prevScore) => prevScore + 1);
+                setInput('');
+                generateRandomSentence();
+                socket.emit("score_update", score + 1);
+>>>>>>> 9d46fa049dbbe3fbb0ef59f3260f15133da6d0e7
             }
         }
     }, [time, isGameStarted]);
@@ -79,7 +121,16 @@ const TypingGame = ({ score, setScore, socket }) => {
         }
     };
 
+    const handleChatSubmit = (e) => {
+        e.preventDefault();
+        if (chatInput.trim() !== '') {
+            socket.emit('chat_message', chatInput);
+            setChatInput('');
+        }
+    };
+
     return (
+<<<<<<< HEAD
         <div className="typing-game">
             <div className="stats-container">
                 <div className="stat-card">
@@ -141,8 +192,55 @@ const TypingGame = ({ score, setScore, socket }) => {
                 <div className="game-over">
                     <div className="game-over-title">Game Over!</div>
                     <div className="final-score">Final WPM: {wordsPerMinute}</div>
+=======
+        <div className="container">
+            <div className="game-container">
+                <h1 className="title">Sentence Typing Game</h1>
+                {isGameStarted && (
+                    <>
+                        <div className="timer">Time Left: {time}</div>
+                        <p>Your Score: {score}</p>
+                        <div className="sentence">{sentence}</div>
+                        {!isGameOver && (
+                            <div className="input-container">
+                                <input
+                                    type="text"
+                                    value={input}
+                                    onChange={handleChange}
+                                    className="input-field"
+                                    placeholder="Type here..."
+                                    autoFocus
+                                />
+                            </div>
+                        )}
+                        {isGameOver && (
+                            <div className="game-over">
+                                <p>Game Over!</p>
+                                <p>Your Score: {score}</p>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
+            <div className="chat-container">
+                <div className="chat-messages">
+                    {chatMessages.map((msg, index) => (
+                        <div key={index} className="chat-message">
+                            <strong>{msg.sender}:</strong> {msg.message}
+                        </div>
+                    ))}
+>>>>>>> 9d46fa049dbbe3fbb0ef59f3260f15133da6d0e7
                 </div>
-            )}
+                <form onSubmit={handleChatSubmit}>
+                    <input
+                        type="text"
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        placeholder="Type a message..."
+                    />
+                    <button type="submit">Send</button>
+                </form>
+            </div>
         </div>
     );
 };

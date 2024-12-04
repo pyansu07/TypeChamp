@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .typing-game {
   background: white;
   border-radius: 20px;
@@ -229,3 +230,168 @@
   border-color: #667EEA;
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
 }
+=======
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+  overflow: hidden;
+}
+
+@keyframes bubble {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-1000px);
+    opacity: 0;
+  }
+}
+
+.bubble {
+  position: absolute;
+  bottom: -50px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  animation: bubble 10s infinite;
+}
+
+.bubble:nth-child(1) {
+  width: 40px;
+  height: 40px;
+  left: 20%;
+  animation-duration: 8s;
+  animation-delay: 1s;
+}
+
+.bubble:nth-child(2) {
+  width: 50px;
+  height: 50px;
+  left: 40%;
+  animation-duration: 10s;
+  animation-delay: 3s;
+}
+
+.bubble:nth-child(3) {
+  width: 60px;
+  height: 60px;
+  left: 60%;
+  animation-duration: 12s;
+  animation-delay: 5s;
+}
+
+.bubble:nth-child(4) {
+  width: 30px;
+  height: 30px;
+  left: 80%;
+  animation-duration: 14s;
+  animation-delay: 7s;
+}
+
+.bubble:nth-child(5) {
+  width: 70px;
+  height: 70px;
+  left: 10%;
+  animation-duration: 16s;
+  animation-delay: 9s;
+}
+
+.container {
+  display: flex;
+  flex-direction: row; /* Changed to row for side-by-side layout */
+  align-items: flex-start;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+  font-family: 'Arial', sans-serif;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.game-container,
+.chat-container {
+  flex: 1; /* Make both sections take up equal space */
+  margin: 10px;
+}
+
+.title {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+}
+
+.timer,
+.score {
+  font-size: 1.2em;
+  margin-bottom: 10px;
+}
+
+.sentence {
+  font-size: 1.5em;
+  margin-bottom: 20px;
+}
+
+.input-container {
+  margin-bottom: 20px;
+}
+
+.input-field {
+  width: 80%;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
+}
+
+.chat-container {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.chat-messages {
+  max-height: 300px; /* Adjusted for more messages */
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.chat-message {
+  text-align: left;
+}
+
+form {
+  display: flex;
+  justify-content: space-between;
+}
+
+form input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+form button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  background: #ff4e50;
+  color: white;
+  cursor: pointer;
+}
+
+.game-over {
+  margin-top: 20px;
+}
+>>>>>>> 9d46fa049dbbe3fbb0ef59f3260f15133da6d0e7
