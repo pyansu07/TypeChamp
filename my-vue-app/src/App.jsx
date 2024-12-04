@@ -3,115 +3,75 @@ import TypingGame from './components/TypingGame';
 import './App.css';
 import io from 'socket.io-client';
 import Swal from 'sweetalert2';
+import ChatBox from './components/ChatBox';
 
 const App = () => {
-    const [playOnline, setPlayOnline] = useState(false);
     const [socket, setSocket] = useState(null);
     const [playerName, setPlayerName] = useState("");
-    const [opponentName, setOpponentName] = useState(null);
+    const [gameState, setGameState] = useState('login');
+    const [players, setPlayers] = useState({
+        count: 0,
+        required: 4,
+        list: []
+    });
     const [score, setScore] = useState(0);
-    const [opponentScore, setOpponentScore] = useState(0); 
     const [isGameOver, setIsGameOver] = useState(false);
-    const [finishedArrayState, setFinishedArrayState] = useState([]);
-    const [winnerName, setWinnerName] = useState("");
-    const [chatMessages, setChatMessages] = useState([]);
-
-
-    socket?.on("connect", function () {
-        setPlayOnline(true);
-    });
-
-    socket?.on("OpponentNotFound", function () {
-        setOpponentName(false);
-    });
-
-    socket?.on("OpponentFound", function (data) {
-        setOpponentName(data.opponentName);
-    });
-
-    // socket?.on("opponent_score_update", function (score) {
-    //     setOpponentScore(score);
-    // });
-
-    socket?.on("opponent_score_update", (score) => {
-      setOpponentScore(score);
-    });
-
-    // socket?.on("announce_winner", (winner) => {
-    //   setWinnerName(winner);
-    // });
-
-  //  const checkWinner = () => {
-  //     if (score > opponentScore) {
-  //         setWinnerName(playerName);
-  //     } else if (score < opponentScore) {
-  //         setWinnerName(opponentName);
-  //     } else {
-  //         setWinnerName("It's a Tie!");
-  //     }
-  // };
-
-  useEffect(() => {
-    if (socket) {
-      socket.on("opponent_score_update", (score) => {
-        setOpponentScore(score);
-      });
-
-      socket.on("announce_winner", (winner) => {
-        setWinnerName(winner);
-      });
-
-      socket.on("chat_message", (chatData) => {
-        setChatMessages(prevMessages => [...prevMessages, chatData]);
-      });
-    }
-  }, [socket]);
-    // useEffect(() => {
-    //     if (isGameOver) {
-    //         checkWinner();
-    //     }
-    // }, [isGameOver]);
-    const checkWinner = () => {
-      if (score > opponentScore) {
-          setWinnerName(playerName);
-      } else if (score < opponentScore) {
-          setWinnerName(opponentName);
-      } else {
-          setWinnerName("It's a Tie!");
-      }
-  };
-
-  useEffect(() => {
-      if (isGameOver) {
-          checkWinner();
-      }
-  }, [isGameOver]);
-    // useEffect(() => {
-    //   const winner = checkWinner();
-    //   if (winner) {
-    //     setFinishetState(winner);
-    //   }
-    // }, [gameState]);
+    const [leaderboard, setLeaderboard] = useState([]);
 
     useEffect(() => {
-      if (isGameOver && socket) {
-        socket.emit("game_over");
-       // socket.emit("score_update");
-       // socket.emit("announce_winner");
-      }
-    }, [isGameOver, socket]);
+        if (socket) {
+            socket.on("waiting_for_players", ({ currentPlayers, requiredPlayers, players }) => {
+                console.log(`Waiting for players: ${currentPlayers}/${requiredPlayers}`);
+                setGameState('waiting');
+                setPlayers({
+                    count: currentPlayers,
+                    required: requiredPlayers,
+                    list: players || []
+                });
+            });
 
-    useEffect(() => {
-      console.log('Chat messages:', chatMessages);
-    }, [chatMessages]);
-  const sendChatMessage = (message) => {
-    if (socket && message.trim() !== '') {
-      socket.emit('chat_message', message);
-    }
-  };
+            socket.on("game_start", ({ players }) => {
+                console.log("Game starting!", players);
+                setGameState('playing');
+                setPlayers(prev => ({
+                    ...prev,
+                    list: players
+                }));
+                setIsGameOver(false);
+                setScore(0);
+            });
 
+            socket.on("players_update", (updatedPlayers) => {
+                setPlayers(prev => ({
+                    ...prev,
+                    list: updatedPlayers
+                }));
+            });
 
-    const takePlayerName = async () => {
+            socket.on("score_update", ({ playerId, newScore }) => {
+                setPlayers(prev => ({
+                    ...prev,
+                    list: prev.list.map(player =>
+                        player.id === playerId
+                            ? { ...player, score: newScore }
+                            : player
+                    )
+                }));
+            });
+
+            socket.on("show_leaderboard", (leaderboardData) => {
+                console.log("Showing leaderboard:", leaderboardData);
+                setLeaderboard(leaderboardData);
+                setGameState('leaderboard');
+            });
+
+            return () => {
+                socket.off("players_update");
+            };
+        }
+    }, [socket]);
+
+    const playOnlineClick = async () => {
         const result = await Swal.fire({
             title: "Enter your name",
             input: "text",
@@ -123,133 +83,139 @@ const App = () => {
             },
         });
 
-        return result;
-    };
+        if (result.isConfirmed) {
+            const username = result.value;
+            setPlayerName(username);
 
-    const playOnlineClick = async () => {
-        const result = await takePlayerName();
-        if (!result.isConfirmed) {
-            return;
+            const newSocket = io("http://localhost:3000");
+            newSocket.on("connect", () => {
+                console.log("Connected to server!");
+                newSocket.emit("request_to_play", {
+                    playerName: username
+                });
+            });
+
+            setSocket(newSocket);
         }
-
-        const username = result.value;
-        setPlayerName(username);
-
-        const newSocket = io("http://localhost:3000", {
-            autoConnect: true,
-        });
-
-        newSocket?.emit("request_to_play", {
-            playerName: username,
-        });
-
-        newSocket?.on("score_update", (score) => {
-            setOpponentScore(score);
-        });
-
-        setSocket(newSocket);
     };
 
-    // if(isGameOver){
-    //   socket.on("score_update", (score) => {
-    //     setOpponentScore(score);
-    //   });
-    // }
-
-
-
-    if (!playOnline) {
-      return (
-        <div className="main-div">
-        <div className="container2">
-          <div className="inner-container2">
-            <div className="left-panel2">
-              <div className="content2">
-                <h1 className="title2">TypeChamp</h1>
-                <p className="subtitle2">
-                  Play anonymously and safely with people for free
-                </p>
-              </div>
-              <button className="buttons2"onClick={playOnlineClick}>
-                    Login Anonymously
-                  </button>
-              {/* {isLoading ? (
-                <div className="loading-message">Processing Login</div>
-              ) : (
-                <div className="buttons">
-
+    // Render leaderboard screen
+    if (gameState === 'leaderboard') {
+        return (
+            <div className="leaderboard-container">
+                <div className="leaderboard-card">
+                    <div className="trophy-animation">👑</div>
+                    <h2 className="leaderboard-title">Game Over - Final Rankings</h2>
+                    <div className="leaderboard-list">
+                        {leaderboard.map((player, index) => (
+                            <div
+                                key={index}
+                                className={`leaderboard-item rank-${index + 1}`}
+                            >
+                                <div className="rank-badge">{index + 1}</div>
+                                <div className="player-info">
+                                    <div className="player-name">{player.name}</div>
+                                    <div className="player-score">{player.score} points</div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <button
+                        className="play-again-btn"
+                        onClick={() => {
+                            setGameState('login');
+                            setLeaderboard([]);
+                            setScore(0);
+                            if (socket) {
+                                socket.disconnect();
+                                setSocket(null);
+                            }
+                        }}
+                    >
+                        Play Again
+                    </button>
                 </div>
-              )} */}
             </div>
-            <div className="right-panel2">
-              <img
-                src="https://whisper.favour.dev/landing%20page%20image.jpg"
-                alt="Landing Page"
-                className="image"
-              />
-            </div>
-          </div>
-        </div>
-        </div>
-      )
-      
-      
-      
-      
-      // return (
-        //     <div className="main-div">
-        //         <button onClick={playOnlineClick} className="playOnline">
-        //             Play Online
-        //         </button>
-        //     </div>
-        // );
+        );
     }
 
-      if (playOnline && !opponentName) {
-    return (
-      <div className="waiting">
-        <p>Waiting for opponent....</p>
-      </div>
-    );
-  }
-
-    return (
-        <>
-            <div className="move-detection">
-
-                <div className='left'>You : {playerName}</div>
-                <div className='right'>  {opponentName}</div>
-                        {/* <div
-          className={`left ${
-            currentPlayer === playingAs ? "current-move-" + currentPlayer : ""
-          }`}
-        >
-          {playerName}
-        </div>
-        <div
-          className={`right ${
-            currentPlayer !== playingAs ? "current-move-" + currentPlayer : ""
-          }`}
-        >
-          {opponentName}
-        </div> */}
-            </div>
-            <div className="App">
-            <TypingGame
-                    score={score}
-                    setScore={setScore}
-                    isGameOver={isGameOver}
-                    setIsGameOver={setIsGameOver}
-                    socket={socket} 
-                    chatMessages={chatMessages}
-                    sendChatMessage={sendChatMessage}
-                />                {isGameOver && winnerName && (
-                    <div className="winner-announcement">
-                        <h2>Winner: {winnerName}</h2>
+    // Render waiting room
+    if (gameState === 'waiting') {
+        return (
+            <div className="waiting-container">
+                <div className="waiting-card">
+                    <h2 className="waiting-title">Waiting for Players</h2>
+                    <div className="players-count">
+                        <p>Players in room: {players.count} / {players.required}</p>
+                        <div className="progress-bar">
+                            <div
+                                className="progress-fill"
+                                style={{ width: `${(players.count / players.required) * 100}%` }}
+                            ></div>
+                        </div>
                     </div>
-                )}
+                    <div className="players-grid">
+                        {players.list && players.list.map((player, index) => (
+                            <div key={index} className="player-item">
+                                {player.name}
+                            </div>
+                        ))}
+                        {[...Array(players.required - players.count)].map((_, index) => (
+                            <div key={`empty-${index}`} className="player-item empty">
+                                Waiting...
+                            </div>
+                        ))}
+                    </div>
+                    <div className="loading-spinner"></div>
+                </div>
             </div>
-        </>
+        );
+    }
+
+    // Render login screen
+    if (gameState === 'login') {
+        return (
+            <div className="login-container">
+                <div className="login-card">
+                    <div className="login-content">
+                        <h1 className="login-title">TypeChamp</h1>
+                        <p className="login-subtitle">
+                            Compete with 3 other players in this typing challenge!
+                        </p>
+                        <button className="login-button" onClick={playOnlineClick}>
+                            Login to Play
+                        </button>
+                    </div>
+                    <div className="login-image">
+                        <img
+                            src="https://whisper.favour.dev/landing%20page%20image.jpg"
+                            alt="Landing Page"
+                        />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Render game screen
+    return (
+        <div className="game-container">
+            <div className="players-header">
+                {players.list && players.list.map((player, index) => (
+                    <div key={index} className="player-score">
+                        {player.name}: {player.score}
+                    </div>
+                ))}
+            </div>
+            <TypingGame
+                score={score}
+                setScore={setScore}
+                isGameOver={isGameOver}
+                setIsGameOver={setIsGameOver}
+                socket={socket}
+            />
+            <ChatBox socket={socket} playerName={playerName} />
+        </div>
     );
 };
 
