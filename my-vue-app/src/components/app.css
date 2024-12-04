@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 .typing-game {
   background: white;
   border-radius: 20px;
@@ -57,149 +58,172 @@
   height: 8px;
   background: #eee;
   border-radius: 4px;
+=======
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+>>>>>>> parent of 92b9f23 (Added multiplayer game logic and enable chat system , improved styling and made page responsive)
   overflow: hidden;
 }
 
-.accuracy-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #4a90e2, #7e57c2);
-  transition: width 0.3s ease;
+@keyframes bubble {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-1000px);
+    opacity: 0;
+  }
 }
 
-.accuracy-value {
-  text-align: right;
-  font-size: 14px;
-  color: #666;
-  margin-top: 5px;
+.bubble {
+  position: absolute;
+  bottom: -50px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  animation: bubble 10s infinite;
 }
 
-.sentence-container {
-  background: #f8f9fa;
-  padding: 20px;
-  border-radius: 15px;
-  font-size: 20px;
-  line-height: 1.6;
-  margin-bottom: 20px;
-  min-height: 100px;
+.bubble:nth-child(1) {
+  width: 40px;
+  height: 40px;
+  left: 20%;
+  animation-duration: 8s;
+  animation-delay: 1s;
+}
+
+.bubble:nth-child(2) {
+  width: 50px;
+  height: 50px;
+  left: 40%;
+  animation-duration: 10s;
+  animation-delay: 3s;
+}
+
+.bubble:nth-child(3) {
+  width: 60px;
+  height: 60px;
+  left: 60%;
+  animation-duration: 12s;
+  animation-delay: 5s;
+}
+
+.bubble:nth-child(4) {
+  width: 30px;
+  height: 30px;
+  left: 80%;
+  animation-duration: 14s;
+  animation-delay: 7s;
+}
+
+.bubble:nth-child(5) {
+  width: 70px;
+  height: 70px;
+  left: 10%;
+  animation-duration: 16s;
+  animation-delay: 9s;
+}
+
+.container {
   display: flex;
-  flex-wrap: wrap;
-  gap: 2px;
-}
-
-.sentence-container span {
-  transition: color 0.2s ease;
-}
-
-.sentence-container span.correct {
-  color: #28a745;
-}
-
-.sentence-container span.incorrect {
-  color: #dc3545;
-  background: rgba(220, 53, 69, 0.1);
-}
-
-.typing-input {
-  width: 100%;
-  padding: 15px 20px;
-  font-size: 18px;
-  border: 2px solid #ddd;
-  border-radius: 10px;
-  outline: none;
-  transition: all 0.3s ease;
-}
-
-.typing-input:focus {
-  border-color: #4a90e2;
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
-}
-
-.typing-input:disabled {
-  background: #f8f9fa;
-  cursor: not-allowed;
-}
-
-.game-over {
+  flex-direction: row; /* Changed to row for side-by-side layout */
+  align-items: flex-start;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
   text-align: center;
-  margin-top: 30px;
-  animation: fadeIn 0.5s ease-out;
+  font-family: 'Arial', sans-serif;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
 }
 
-.game-over-title {
-  font-size: 30px;
-  font-weight: bold;
-  color: #333;
+.game-container,
+.chat-container {
+  flex: 1; /* Make both sections take up equal space */
+  margin: 10px;
+}
+
+.title {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+}
+
+.timer,
+.score {
+  font-size: 1.2em;
   margin-bottom: 10px;
 }
 
-.final-score {
-  font-size: 20px;
-  color: #666;
+.sentence {
+  font-size: 1.5em;
+  margin-bottom: 20px;
 }
 
-/* Animations */
-@keyframes slideUp {
-  from {
-      opacity: 0;
-      transform: translateY(20px);
-  }
-  to {
-      opacity: 1;
-      transform: translateY(0);
-  }
+.input-container {
+  margin-bottom: 20px;
 }
 
-@keyframes fadeIn {
-  from {
-      opacity: 0;
-  }
-  to {
-      opacity: 1;
-  }
+.input-field {
+  width: 80%;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .typing-game {
-      padding: 20px;
-  }
-
-  .stats-container {
-      grid-template-columns: 1fr;
-      gap: 10px;
-  }
-
-  .sentence-container {
-      font-size: 16px;
-  }
-
-  .typing-input {
-      font-size: 16px;
-  }
-} 
-/* Update these styles in your existing TypingGame.css */
-.typing-game {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
-  padding: 30px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  animation: slideUp 0.5s ease-out;
-  max-width: 900px;
-  margin: 0 auto;
+.chat-container {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 15px;
+  border-radius: 10px;
 }
 
-.stat-card {
-  background: linear-gradient(135deg, #4299E1, #667EEA);
-  padding: 20px;
-  border-radius: 15px;
-  text-align: center;
-  transition: transform 0.3s ease;
+.chat-messages {
+  max-height: 300px; /* Adjusted for more messages */
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.chat-message {
+  text-align: left;
+}
+
+form {
+  display: flex;
+  justify-content: space-between;
+}
+
+form input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+form button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  background: #ff4e50;
   color: white;
+  cursor: pointer;
 }
 
-.stat-label {
-  color: rgba(255, 255, 255, 0.9);
+.game-over {
+  margin-top: 20px;
 }
+<<<<<<< HEAD
 
 .stat-value {
   color: white;
@@ -395,3 +419,5 @@ form button {
   margin-top: 20px;
 }
 >>>>>>> 9d46fa049dbbe3fbb0ef59f3260f15133da6d0e7
+=======
+>>>>>>> parent of 92b9f23 (Added multiplayer game logic and enable chat system , improved styling and made page responsive)

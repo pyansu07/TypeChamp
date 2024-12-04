@@ -1,18 +1,30 @@
 import React, { useState, useEffect } from 'react';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import './TypingGame.css';
 =======
 import './app.css';
 import io from 'socket.io-client';
 >>>>>>> 9d46fa049dbbe3fbb0ef59f3260f15133da6d0e7
+=======
+import './app.css';
+import io from 'socket.io-client';
+>>>>>>> parent of 92b9f23 (Added multiplayer game logic and enable chat system , improved styling and made page responsive)
 
 const sentences = [
     "The quick brown fox jumps over the lazy dog.",
-    "Programming is fun and challenging.",
-    "Practice makes perfect.",
-    "Keep coding and learning new things.",
+    "Coding is fun and challenging at the same time.",
+    "React.js is a popular JavaScript library for building user interfaces.",
+    "Practice makes perfect in programming.",
+    "Always strive for continuous improvement in your skills.",
+    "Keep calm and code on!",
+    "Programming is a creative process of problem-solving.",
+    "Efficiency and readability are key factors in writing good code.",
+    "Success in coding requires patience and perseverance.",
+    "Learning new technologies opens up endless possibilities.",
 ];
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 const TypingGame = ({ score, setScore, socket }) => {
     const [currentSentence, setCurrentSentence] = useState('');
@@ -30,16 +42,29 @@ const TypingGame = ({ score, setScore, isGameOver, setIsGameOver, socket, chatMe
     const [isGameStarted, setIsGameStarted] = useState(false);
     const [chatInput, setChatInput] = useState('');
 >>>>>>> 9d46fa049dbbe3fbb0ef59f3260f15133da6d0e7
+=======
+const TypingGame = ({ score, setScore, isGameOver, setIsGameOver, socket, chatMessages, sendChatMessage }) => {
+    const [sentence, setSentence] = useState('');
+    const [input, setInput] = useState('');
+    const [time, setTime] = useState(15);
+    const [isGameStarted, setIsGameStarted] = useState(false);
+    const [chatInput, setChatInput] = useState('');
+>>>>>>> parent of 92b9f23 (Added multiplayer game logic and enable chat system , improved styling and made page responsive)
 
     useEffect(() => {
-        setCurrentSentence(sentences[Math.floor(Math.random() * sentences.length)]);
+        setIsGameStarted(true);
+        startGame();
     }, []);
 
     useEffect(() => {
-        if (time > 0 && isGameStarted) {
-            const timer = setTimeout(() => setTime(time - 1), 1000);
+        if (time > 0 && !isGameOver && isGameStarted) {
+            const timer = setTimeout(() => {
+                setTime((prevTime) => prevTime - 1);
+            }, 1000);
+
             return () => clearTimeout(timer);
         } else if (time === 0 && isGameStarted) {
+<<<<<<< HEAD
 <<<<<<< HEAD
             if (socket) {
                 socket.emit("game_over", wordsPerMinute); // Send WPM as score
@@ -71,53 +96,42 @@ const TypingGame = ({ score, setScore, isGameOver, setIsGameOver, socket, chatMe
                 socket.emit("score_update", score + 1);
 >>>>>>> 9d46fa049dbbe3fbb0ef59f3260f15133da6d0e7
             }
+=======
+            setIsGameOver(true);
+>>>>>>> parent of 92b9f23 (Added multiplayer game logic and enable chat system , improved styling and made page responsive)
         }
-    }, [time, isGameStarted]);
+    }, [time, isGameOver, isGameStarted]);
 
-    const calculateWPM = (text, timeElapsed) => {
-        const words = text.trim().split(/\s+/).length;
-        const minutes = timeElapsed / 60;
-        return Math.round(words / minutes);
+    const startGame = () => {
+        generateRandomSentence();
+        setTime(15);
+        setScore(0);
+        setInput('');
+        setIsGameOver(false);
     };
 
-    const calculateAccuracy = (input, target) => {
-        if (input.length === 0) return 100;
-        let correct = 0;
-        input.split('').forEach((char, i) => {
-            if (char === target[i]) correct++;
-        });
-        return Math.round((correct / input.length) * 100);
+    const generateRandomSentence = () => {
+        const randomIndex = Math.floor(Math.random() * sentences.length);
+        setSentence(sentences[randomIndex]);
     };
 
-    const handleInput = (e) => {
-        const value = e.target.value;
-        setUserInput(value);
-
-        if (!isGameStarted) {
-            setIsGameStarted(true);
-            setStartTime(Date.now());
-        }
-
-        // Calculate accuracy
-        setAccuracy(calculateAccuracy(value, currentSentence));
-
-        // Calculate WPM and update score
-        if (startTime) {
-            const timeElapsed = (Date.now() - startTime) / 1000;
-            const currentWPM = calculateWPM(value, timeElapsed);
-            setWordsPerMinute(currentWPM);
-            
-            // IMPORTANT: Just emit the raw score number
-            if (socket) {
-                socket.emit("score_update", Math.round(currentWPM));
+    const handleChange = (e) => {
+        if (!isGameOver && isGameStarted) {
+            setInput(e.target.value);
+            if (e.target.value.trim() === sentence) {
+                setScore((prevScore) => prevScore + 1);
+                setInput('');
+                generateRandomSentence();
+                socket.emit("score_update", score + 1);
             }
         }
+    };
 
-        if (value === currentSentence) {
-            setUserInput('');
-            setCurrentSentence(sentences[Math.floor(Math.random() * sentences.length)]);
-            // Reset start time for new sentence
-            setStartTime(Date.now());
+    const handleChatSubmit = (e) => {
+        e.preventDefault();
+        if (chatInput.trim() !== '') {
+            socket.emit('chat_message', chatInput);
+            setChatInput('');
         }
     };
 
@@ -130,6 +144,7 @@ const TypingGame = ({ score, setScore, isGameOver, setIsGameOver, socket, chatMe
     };
 
     return (
+<<<<<<< HEAD
 <<<<<<< HEAD
         <div className="typing-game">
             <div className="stats-container">
@@ -150,17 +165,56 @@ const TypingGame = ({ score, setScore, isGameOver, setIsGameOver, socket, chatMe
                     <div className="stat-label">Accuracy</div>
                     <div className="stat-value">{accuracy}%</div>
                 </div>
+=======
+        <div className="container">
+            <div className="game-container">
+                <h1 className="title">Sentence Typing Game</h1>
+                {isGameStarted && (
+                    <>
+                        <div className="timer">Time Left: {time}</div>
+                        <p>Your Score: {score}</p>
+                        <div className="sentence">{sentence}</div>
+                        {!isGameOver && (
+                            <div className="input-container">
+                                <input
+                                    type="text"
+                                    value={input}
+                                    onChange={handleChange}
+                                    className="input-field"
+                                    placeholder="Type here..."
+                                    autoFocus
+                                />
+                            </div>
+                        )}
+                        {isGameOver && (
+                            <div className="game-over">
+                                <p>Game Over!</p>
+                                <p>Your Score: {score}</p>
+                            </div>
+                        )}
+                    </>
+                )}
+>>>>>>> parent of 92b9f23 (Added multiplayer game logic and enable chat system , improved styling and made page responsive)
             </div>
-
-            <div className="accuracy-container">
-                <div className="accuracy-label">Progress</div>
-                <div className="accuracy-bar">
-                    <div 
-                        className="accuracy-fill"
-                        style={{ width: `${accuracy}%` }}
-                    ></div>
+            <div className="chat-container">
+                <div className="chat-messages">
+                    {chatMessages.map((msg, index) => (
+                        <div key={index} className="chat-message">
+                            <strong>{msg.sender}:</strong> {msg.message}
+                        </div>
+                    ))}
                 </div>
+                <form onSubmit={handleChatSubmit}>
+                    <input
+                        type="text"
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        placeholder="Type a message..."
+                    />
+                    <button type="submit">Send</button>
+                </form>
             </div>
+<<<<<<< HEAD
 
             <div className="sentence-container">
                 {currentSentence.split('').map((char, index) => (
@@ -241,6 +295,8 @@ const TypingGame = ({ score, setScore, isGameOver, setIsGameOver, socket, chatMe
                     <button type="submit">Send</button>
                 </form>
             </div>
+=======
+>>>>>>> parent of 92b9f23 (Added multiplayer game logic and enable chat system , improved styling and made page responsive)
         </div>
     );
 };
